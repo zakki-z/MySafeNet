@@ -1,0 +1,50 @@
+version: '3.9'
+
+services:
+
+  nginx:
+    image: nginx:latest
+    container_name: nginx-proxy
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+    depends_on:
+      - symfony-gateway
+      - spring-backend
+      - angular-web
+      - flutter-mobile
+      - electron-desktop
+    networks:
+      - app-network
+
+  symfony-gateway:
+    build: ./gateway-symfony
+    networks:
+      - app-network
+
+  spring-backend:
+    build: ./backend-springboot
+    networks:
+      - app-network
+
+  angular-web:
+    build: ./frontend-angular
+    networks:
+      - app-network
+
+  flutter-mobile:
+    build: ./flutter-mobile
+    networks:
+      - app-network
+
+  electron-desktop:
+    build: ./desktop-electron
+    stdin_open: true
+    tty: true
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
