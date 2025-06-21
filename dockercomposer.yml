@@ -15,6 +15,22 @@ services:
       - angular-web
       - flutter-mobile
       - electron-desktop
+      - mercure
+    networks:
+      - app-network
+
+  mercure:
+    image: dunglas/mercure
+    container_name: mercure
+    environment:
+      # Set the URL of your Mercure hub (without trailing slash)
+      - MERCURE_PUBLISHER_JWT_KEY=a5ac2805936cf9edca70d47e78936795dcfbddcaa979dd97aa41649a6b61b119
+      - MERCURE_SUBSCRIBER_JWT_KEY=f477c976327c2a53eab758e5f07b23e66220d7765d3a33bea8d1eb8445a9af40
+      # Needed for dev environment
+      - MERCURE_EXTRA_DIRECTIVES=cors_origins *
+      - SERVER_NAME=:80
+    ports:
+      - "3000:80"
     networks:
       - app-network
 
@@ -24,12 +40,12 @@ services:
       - app-network
 
   spring-backend:
-    build: ./backend-springboot
+    build: ./backend-springboot/chatappSpringboot
     networks:
       - app-network
 
   angular-web:
-    build: ./frontend-angular
+    build: ./frontend-angular/mychat
     networks:
       - app-network
 
