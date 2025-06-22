@@ -35,7 +35,7 @@ services:
       - app-network
 
   symfony-gateway:
-    build: ./gateway-symfony
+    build: ./gateway-symfony/chatapp
     networks:
       - app-network
 
