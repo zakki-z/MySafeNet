@@ -72,3 +72,4 @@ setup-mercure: generate-keys
 	@echo "SERVER_NAME=:80" >> $(ENV_FILE)
 	@echo "Mercure configuration saved to $(ENV_FILE)"
 	@echo "You can now update your docker-compose.yml to use these environment variables"
+
