@@ -19,6 +19,7 @@ services:
       - POSTGRES_DB=chatapp
       - POSTGRES_USER=admin
       - POSTGRES_PASSWORD=chat
+      - POSTGRES_HOST_AUTH_METHOD=trust
     ports:
       - "5432:5432"
     volumes:
@@ -60,6 +61,8 @@ services:
       - postgres
     networks:
       - app-network
+    volumes:
+      - pgadmin-data:/var/lib/pgadmin
 
 networks:
   app-network:
@@ -67,3 +70,4 @@ networks:
 
 volumes:
   postgres_data:
+  pgadmin-data:

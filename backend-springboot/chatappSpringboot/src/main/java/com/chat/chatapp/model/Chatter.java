@@ -1,26 +1,24 @@
 package com.chat.chatapp.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
+import lombok.*;
+
+import java.util.List;
 
 @Entity
 @Table(name = "chatter")
+@Getter
+@Setter
 public class Chatter extends User{
-    private String CreatedAt;
-    private String LastSeen;
+    @Column(nullable = false)
+    @Temporal(TemporalType.DATE)
+    private String createdAt;
+    @Column(nullable = false)
+    @Temporal(TemporalType.DATE)
+    private String lastSeen;
 
-    public String getCreatedAt() {
-        return CreatedAt;
-    }
-    public void setCreatedAt(String createdAt) {
-        CreatedAt = createdAt;
-    }
-    public String getLastSeen() {
-        return LastSeen;
-    }
-    public void setLastSeen(String lastSeen) {
-        LastSeen = lastSeen;
-    }
+    @OneToMany(mappedBy = "chatter",cascade = CascadeType.ALL ,orphanRemoval = true)
+    private List<blockList> blockList;
     public Chatter() {
     }
     public Chatter (String username,
@@ -38,7 +36,7 @@ public class Chatter extends User{
         super.setPhoneNumber(phoneNumber);
         super.setProfilePicture(profilePicture);
         super.setStatus(status);
-        this.CreatedAt = createdAt;
-        this.LastSeen = lastSeen;
+        this.createdAt = createdAt;
+        this.lastSeen = lastSeen;
     }
 }
