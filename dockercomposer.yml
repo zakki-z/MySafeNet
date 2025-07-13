@@ -43,12 +43,15 @@ services:
       - app-network
 
   angular-web:
-    build: ./frontend-angular/mychat
+    build:
+      context: ./frontend-angular/mychat
+      dockerfile: Dockerfile
     container_name: angular-web
     ports:
-      - "8081:8081"  # Added port mapping to match nginx.conf
+      - "8081:80"  # Added port mapping to match nginx.conf
     networks:
       - app-network
+
   pgadmin:
     image: dpage/pgadmin4
     container_name: pgadmin
