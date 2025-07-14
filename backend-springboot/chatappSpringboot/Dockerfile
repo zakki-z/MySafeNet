@@ -2,6 +2,8 @@ FROM eclipse-temurin:21-jdk-alpine
 
 WORKDIR /app
 
+#RUN ./mvnw clean package -DskipTests
+
 COPY target/*.jar app.jar
 
 EXPOSE 8083
