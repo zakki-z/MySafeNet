@@ -6,7 +6,7 @@ import { AboutComponent } from './about/about.component';
 const routes: Routes = [
   { path: 'home', component: HomeComponent },          // default route
   { path: 'about', component: AboutComponent },    // /about route
-  { path: '**', redirectTo: '' }                    // wildcard route redirects to home
+  { path: '**', redirectTo: 'home' }                    // wildcard route redirects to home
 ];
 
 @NgModule({

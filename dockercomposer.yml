@@ -3,12 +3,39 @@ services:
     image: nginx:latest
     container_name: nginx-proxy
     ports:
-      - "85:85"  # Changed from 85:85 to match nginx.conf
+      - "85:85"  # Expose only nginx-proxy port to host
     volumes:
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf  # Your nginx config file path
     depends_on:
       - spring-backend
       - angular-web
+    networks:
+      - app-network
+
+  spring-backend:
+    build: ./backend-springboot/chatappSpringboot
+    container_name: spring-backend
+    ports:
+      - "8083:8083"  # Optional: needed only if you want to access backend directly
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/chatapp
+      - SPRING_DATASOURCE_USERNAME=admin
+      - SPRING_DATASOURCE_PASSWORD=chat
+      - SERVER_PORT=8083
+    depends_on:
+      - postgres
+    networks:
+      - app-network
+    volumes:
+      - ./target/classes:/app/classes
+      - ./src:/app/src
+      - ./target/dependencies:/app/dependencies
+  angular-web:
+    build:
+      context: ./frontend-angular/mychat
+      dockerfile: Dockerfile
+    container_name: angular-web
+    # Remove port mapping here; Angular listens internally on port 80 only
     networks:
       - app-network
 
@@ -24,31 +51,6 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-    networks:
-      - app-network
-
-  spring-backend:
-    build: ./backend-springboot/chatappSpringboot
-    container_name: spring-backend
-    ports:
-      - "8083:8083"
-    environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/chatapp
-      - SPRING_DATASOURCE_USERNAME=admin
-      - SPRING_DATASOURCE_PASSWORD=chat
-      - SERVER_PORT=8083
-    depends_on:
-      - postgres
-    networks:
-      - app-network
-
-  angular-web:
-    build:
-      context: ./frontend-angular/mychat
-      dockerfile: Dockerfile
-    container_name: angular-web
-    ports:
-      - "8081:80"  # Added port mapping to match nginx.conf
     networks:
       - app-network
 
@@ -74,3 +76,81 @@ networks:
 volumes:
   postgres_data:
   pgadmin-data:
+
+
+  #services:
+  #  nginx:
+  #    image: nginx:latest
+  #    container_name: nginx-proxy
+  #    ports:
+  #      - "85:85"  # Changed from 85:85 to match nginx.conf
+  #    volumes:
+  #      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+  #    depends_on:
+  #      - spring-backend
+  #      - angular-web
+  #    networks:
+  #      - app-network
+  #
+  #  postgres:
+  #    image: postgres:latest
+  #    container_name: postgres-db
+  #    environment:
+  #      - POSTGRES_DB=chatapp
+  #      - POSTGRES_USER=admin
+  #      - POSTGRES_PASSWORD=chat
+  #      - POSTGRES_HOST_AUTH_METHOD=trust
+  #    ports:
+  #      - "5432:5432"
+  #    volumes:
+  #      - postgres_data:/var/lib/postgresql/data
+  #    networks:
+  #      - app-network
+  #
+  #  spring-backend:
+  #    build: ./backend-springboot/chatappSpringboot
+  #    container_name: spring-backend
+  #    ports:
+  #      - "8083:8083"
+  #    environment:
+  #      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/chatapp
+  #      - SPRING_DATASOURCE_USERNAME=admin
+  #      - SPRING_DATASOURCE_PASSWORD=chat
+  #      - SERVER_PORT=8083
+  #    depends_on:
+  #      - postgres
+  #    networks:
+  #      - app-network
+  #
+  #  angular-web:
+  #    build:
+  #      context: ./frontend-angular/mychat
+  #      dockerfile: Dockerfile
+  #    container_name: angular-web
+  #    ports:
+  #      - "8081:80"  # Added port mapping to match nginx.conf
+  #    networks:
+  #      - app-network
+  #
+  #  pgadmin:
+  #    image: dpage/pgadmin4
+  #    container_name: pgadmin
+  #    environment:
+  #      PGADMIN_DEFAULT_EMAIL: admin@gmail.com
+  #      PGADMIN_DEFAULT_PASSWORD: admin
+  #    ports:
+  #      - "8082:80"
+  #    depends_on:
+  #      - postgres
+  #    networks:
+  #      - app-network
+  #    volumes:
+  #      - pgadmin-data:/var/lib/pgadmin
+  #
+  #networks:
+  #  app-network:
+  #    driver: bridge
+  #
+  #volumes:
+  #  postgres_data:
+  #  pgadmin-data:

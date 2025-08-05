@@ -2,13 +2,25 @@ FROM eclipse-temurin:21-jdk-alpine
 
 WORKDIR /app
 
-#RUN ./mvnw clean package -DskipTests
+# We'll mount the following at runtime:
+# - target/classes (compiled source)
+# - target/dependencies (exploded JAR dependencies)
 
-COPY target/*.jar app.jar
+# The application will run using classpath instead of jar
+CMD ["java", "-cp", "classes:dependencies/*", "com.chat.chatapp.ChatappApplication"]
 
-EXPOSE 8083
 
-ENTRYPOINT ["java","-jar","/app/app.jar"]
+#FROM eclipse-temurin:21-jdk-alpine
+#
+#WORKDIR /app
+#
+##RUN ./mvnw clean package -DskipTests
+#
+#COPY target/*.jar app.jar
+#
+#EXPOSE 8083
+#
+#ENTRYPOINT ["java","-jar","/app/app.jar"]
 #
 #FROM openjdk:17-jdk-slim
 #WORKDIR /app

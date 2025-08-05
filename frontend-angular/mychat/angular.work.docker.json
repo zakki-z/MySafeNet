@@ -23,7 +23,6 @@
               "src/assets"
             ],
             "styles": [
-              "node_modules/bootstrap/dist/css/bootstrap.min.css",
               "src/styles.css"
             ],
             "scripts": []
@@ -69,15 +68,12 @@
         },
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
-          "options": {
-            "buildTarget": "mychat:build"
-          },
           "configurations": {
             "production": {
-              "buildTarget": "mychat:build:production"
+              "browserTarget": "mychat:build:production"
             },
             "development": {
-              "buildTarget": "mychat:build:development"
+              "browserTarget": "mychat:build:development"
             }
           },
           "defaultConfiguration": "development"
