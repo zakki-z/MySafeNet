@@ -1,9 +1,12 @@
 package com.example.mysafenet.entity.user;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import jakarta.validation.constraints.Email;
 import lombok.*;
+
+import java.util.UUID;
 
 
 @Entity
@@ -14,9 +17,12 @@ import lombok.*;
 public abstract class User {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    private long UUID;
+    @Column(columnDefinition = "uuid")
+    private UUID UUID;
+    @NotNull
     @Column( nullable = false, unique = true, length = 50)
     private String username;
+    @NotNull
     @Column(nullable = false)
     @Size(min = 6)
     private String password;
@@ -27,13 +33,13 @@ public abstract class User {
 
     @Column(unique = true)
     private String phoneNumber;
-    @Column(unique = true)
+    @Column(unique = false)
     private String fullName;
-    @Column(unique = true)
+    @Column(unique = false)
     private int age;
-    @Column(unique = true)
+    @Column(unique = false)
     private String ProfilePicture;
-
+    @NotNull
     @Column(nullable = false)
     private String Status;
 
