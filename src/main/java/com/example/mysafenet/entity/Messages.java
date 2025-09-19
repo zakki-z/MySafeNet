@@ -15,10 +15,10 @@ public class Messages {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
-    @OneToOne(cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "chat_id")
-    private Chat chat_id;
-    @OneToOne(cascade = CascadeType.ALL)
+    private Chat chat;
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "sender_user_id")
     private Chatter sender;
     private String content;

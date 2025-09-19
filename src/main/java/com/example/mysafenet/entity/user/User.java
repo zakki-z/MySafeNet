@@ -27,7 +27,10 @@ public abstract class User {
 
     @Column(unique = true)
     private String phoneNumber;
-
+    @Column(unique = true)
+    private String fullName;
+    @Column(unique = true)
+    private int age;
     @Column(unique = true)
     private String ProfilePicture;
 

@@ -15,15 +15,15 @@ public class MessageAttachment {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
-    @OneToOne(cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "messages_id")
     private Messages messages;
     private String fileName;
     private String fileUrl;
     private String fileType;
     private long fileSize;
-    @OneToOne(cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "sender_user_id")
     private Chatter sender;
-    private LocalDateTime uploaded_at;
+    private LocalDateTime uploadedAt;
 }
