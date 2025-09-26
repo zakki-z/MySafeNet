@@ -1,0 +1,90 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: chat_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-chatapp}
+      POSTGRES_USER: ${POSTGRES_USER:-chatuser}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-chatpassword}
+    volumes:
+      - ./postgres-data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-chatuser} -d ${POSTGRES_DB:-chatapp}"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - chat-network
+
+  # Spring Boot Backend
+  backend:
+    build:
+      context: ../code/backend
+      dockerfile: ../../infra/spring-boot/Dockerfile
+    container_name: chat_backend
+    restart: unless-stopped
+    environment:
+      - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE:-docker}
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/${POSTGRES_DB:-chatapp}
+      - SPRING_DATASOURCE_USERNAME=${POSTGRES_USER:-chatuser}
+      - SPRING_DATASOURCE_PASSWORD=${POSTGRES_PASSWORD:-chatpassword}
+      - JWT_SECRET=${JWT_SECRET}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - chat-network
+
+  # Next.js Frontend
+  frontend:
+    build:
+      context: ../code/frontend
+      dockerfile: ../../infra/nextjs/Dockerfile
+    container_name: chat_frontend
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-http://localhost/api}
+    depends_on:
+      - backend
+    networks:
+      - chat-network
+
+  # Angular Admin Dashboard
+  admin-dashboard:
+    build:
+      context: ../code/admin-dashboard
+      dockerfile: ../../infra/angular/Dockerfile
+    container_name: chat_admin
+    restart: unless-stopped
+    depends_on:
+      - backend
+    networks:
+      - chat-network
+
+  # Nginx Reverse Proxy
+  nginx:
+    image: nginx:alpine
+    container_name: chat_nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - frontend
+      - admin-dashboard
+      - backend
+    networks:
+      - chat-network
+
+networks:
+  chat-network:
+    driver: bridge
