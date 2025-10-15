@@ -1,9 +1,13 @@
 package com.example.mysafenet.entity;
 
+import com.example.mysafenet.entity.enums.MessageType;
 import com.example.mysafenet.entity.user.Chatter;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -12,6 +16,9 @@ import java.util.UUID;
 @Data
 
 @Table(name = "messages")
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class Messages {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -37,4 +44,9 @@ public class Messages {
     private LocalDateTime deliveredAt;
     private LocalDateTime seenAt;
     private LocalDateTime editedAt;
+    private LocalDateTime deletedAt;
+    @NotNull
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private MessageType messageType;
 }

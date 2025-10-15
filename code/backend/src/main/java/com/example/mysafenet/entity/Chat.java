@@ -1,6 +1,7 @@
 package com.example.mysafenet.entity;
 
 
+import com.example.mysafenet.entity.enums.ChatType;
 import com.example.mysafenet.entity.user.Chatter;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
@@ -32,8 +33,4 @@ public class Chat {
     @NotNull
     private LocalDateTime createdAt;
 
-}
-enum ChatType{
-    group,
-    privateChat
 }
