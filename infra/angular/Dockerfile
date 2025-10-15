@@ -1,5 +1,5 @@
 # Build stage
-FROM node:18-alpine AS builder
+FROM node:22-alpine AS builder
 
 WORKDIR /app
 
@@ -11,16 +11,16 @@ RUN npm ci
 COPY . .
 
 # Build the application
-RUN npm run build --prod
+RUN npm run build --dev
 
 # Runtime stage with nginx
 FROM nginx:alpine
 
 # Copy built app to nginx
-COPY --from=builder /app/dist/admin-dashboard /usr/share/nginx/html/
+COPY --from=builder /app/dist/dashboard /usr/share/nginx/html/
 
-# Copy custom nginx config
-COPY ../../infra/angular/nginx.conf /etc/nginx/conf.d/default.conf
+# Copy custom nginx config (from infra/angular directory)
+COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 EXPOSE 80
 
