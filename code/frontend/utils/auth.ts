@@ -1,64 +1,57 @@
 import { NextAuthOptions, getServerSession } from "next-auth";
-import GitHubProvider from "next-auth/providers/github";
 import CredentialsProvider from "next-auth/providers/credentials";
 import apiAuthSignIn from "./api";
-import { JWT } from "next-auth/jwt";
 
 export const authOptions: NextAuthOptions = {
     providers: [
-        GitHubProvider({
-            clientId: process.env.GITHUB_ID as string,
-            clientSecret: process.env.GITHUB_SECRET as string,
-        }),
         CredentialsProvider({
             name: "Credentials",
             credentials: {
                 username: { label: "Username", type: "text" },
-                email: { label: "Email", type: "email" },
                 password: { label: "Password", type: "password" },
             },
-            async authorize(
-                credentials:
-                    | Record<"email" | "username" | "password", string>
-                    | undefined
-            ) {
-                if (!credentials) {
-                    throw new Error("Invalid credentials");
+            async authorize(credentials) {
+                if (!credentials?.username || !credentials?.password) {
+                    return null;
                 }
-                const user = await apiAuthSignIn(credentials);
-                return user;
+
+                const user = await apiAuthSignIn({
+                    username: credentials.username,
+                    email: "", // Email not required for login
+                    password: credentials.password
+                });
+
+                if (user && user.accessToken) {
+                    return user;
+                }
+                return null;
             },
         }),
     ],
     callbacks: {
-        async jwt({ token, account, user }) {
-            // Persist the OAuth access_token to the token right after signin
-            if (account) {
-                token.accessToken = user?.accessToken;
+        async jwt({ token, user }) {
+            if (user) {
+                token.accessToken = user.accessToken;
+                token.userType = user.userType;
+                token.username = user.name;
             }
-            return user as JWT;
+            return token;
         },
-        async session({ session, token, user }) {
-            // Send properties to the client, like an access_token from a provider.
+        async session({ session, token }) {
+            session.accessToken = token.accessToken;
+            session.userType = token.userType;
+            session.user.name = token.username;
             return session;
         },
     },
     session: {
         strategy: "jwt",
-        maxAge: 30 * 24 * 60 * 60, // Maximum session age in seconds (30 days)
+        maxAge: 24 * 60 * 60, // 24 hours (match backend)
     },
-
     pages: {
-        // signIn: "/auth/signin",
-    },
-    jwt: {
-        secret: process.env.NEXT_JWT_SECRET as string,
+        signIn: "/auth/signin",
     },
     secret: process.env.NEXTAUTH_SECRET as string,
 };
-/**
- * Wrapper for `getServerSession` so that you don't need to import the `authOptions` in every file.
- *
- * @see https://next-auth.js.org/configuration/nextjs
- */
+
 export const getServerAuthSession = () => getServerSession(authOptions);

@@ -1,67 +1,84 @@
 import { BACKEND_API } from "./constants";
+
 export default async function apiAuthSignIn(
     credentials: Record<"email" | "username" | "password", string> | undefined
 ) {
     try {
-        const response = await fetch(`${BACKEND_API}/api/auth/signin`, {
+        const response = await fetch(`${BACKEND_API}/api/auth/login`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
             },
-            body: JSON.stringify(credentials as any),
+            body: JSON.stringify({
+                username: credentials?.username,
+                password: credentials?.password
+            }),
         });
-        //if 401 unauthorized
+
         if (!response.ok) {
-            return new Error("Invalid credentials");
+            return null;
         }
 
         const data = await response.json();
-        //verify jwt access token
-        // const decoded = jwt.verify(data.accessToken, process.env.JWT_SECRET);
+
         if (data.error) {
-            return { error: data.message };
+            return null;
         }
 
-        const userID = data.userID;
-        return { ...data, userID };
+        // Return user object with token
+        return {
+            id: data.username,
+            name: data.username,
+            email: credentials?.email,
+            accessToken: data.token,
+            userType: data.userType
+        };
     } catch (error) {
-        // return { error: error.message };
-        console.log(error?.message, "No connection to Backend");
-        return error;
+        console.error("Auth error:", error);
+        return null;
     }
 }
+
 export async function apiAuthSignUp(credentials: {
     username: string;
     email: string;
     password: string;
+    fullName?: string;
+    phoneNumber?: string;
+    age?: number;
+    role?: string;
+    userType: 'admin' | 'chatter';
 }) {
     try {
-        console.log(BACKEND_API);
-        const response = await fetch(`${BACKEND_API}/api/auth/signup`, {
+        const endpoint = credentials.userType === 'admin'
+            ? `${BACKEND_API}/api/auth/register/admin`
+            : `${BACKEND_API}/api/auth/register/chatter`;
+
+        const response = await fetch(endpoint, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
             },
-            body: JSON.stringify(credentials),
+            body: JSON.stringify({
+                username: credentials.username,
+                email: credentials.email,
+                password: credentials.password,
+                fullName: credentials.fullName || "",
+                phoneNumber: credentials.phoneNumber || "",
+                age: credentials.age || 0,
+                role: credentials.role || null
+            }),
         });
 
-        console.log("screds", credentials);
         if (!response.ok) {
-            return new Error("Sign-up failed");
+            const errorData = await response.json();
+            return { error: errorData.error || "Sign-up failed" };
         }
 
         const data = await response.json();
-        console.log("data", data);
-        if (data.error) {
-            return { error: data.message };
-        }
-
-        return data; // Return the response data on successful sign-up
+        return data;
     } catch (error) {
-        console.log(error?.message, "No connection to Backend");
-        return error;
+        console.error("Sign-up error:", error);
+        return { error: "Connection failed" };
     }
 }
-
-export const BAPI = process.env.BACKEND_SERVER as string;
-export const Token = process.env.BEARER as string;

@@ -1,55 +1,43 @@
 "use client";
-import { useEffect, useState } from "react";
-import { redirect } from "next/navigation";
-import { useSession, signIn } from "next-auth/react";
-import "react-toastify/dist/ReactToastify.css";
+import { signIn } from "next-auth/react";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { ToastContainer, toast } from "react-toastify";
-import Link from "next/link";
-import { apiAuthSignUp } from "@/utils/api";
+import "react-toastify/dist/ReactToastify.css";
 
-export default function SignUpForm() {
-    const [formData, setFormData] = useState({
-        username: "",
-        email: "",
-        password: "",
-        confirmPassword: "",
-    });
-    const { username, email, password, confirmPassword } = formData;
-    const data = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value });
-    };
+export default function SignInForm() {
+    const router = useRouter();
+    const [username, setUsername] = useState("");
+    const [password, setPassword] = useState("");
+    const [isLoading, setIsLoading] = useState(false);
 
-    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
+    async function handleSubmit(event: React.FormEvent) {
+        event.preventDefault();
+        setIsLoading(true);
 
-        if (formData.password !== formData.confirmPassword) {
-            toast.error("Passwords do not match");
-            return;
-        }
         try {
-            const data = await apiAuthSignUp({ username, email, password });
-            if (data.error) throw new Error(data.error); // Handle error from API
-
-            // Start session after signup
-            await signIn("credentials", {
-                email,
-                password,
+            const result = await signIn("credentials", {
                 username,
-                callbackUrl: "/dashboard",
-                redirect: true,
+                password,
+                redirect: false,
             });
+
+            if (result?.error) {
+                toast.error("Invalid username or password");
+            } else if (result?.ok) {
+                router.push("/dashboard");
+            }
         } catch (error) {
-            toast.error("Invalid credentials");
+            toast.error("An error occurred during sign in");
+        } finally {
+            setIsLoading(false);
         }
-    };
+    }
 
     return (
-        <div className="flex justify-center items-center h-screen">
-            <form
-                onSubmit={handleSubmit}
-                className="bg-gray-200 shadow-md rounded px-8 pt-6 pb-8 mb-4 w-full sm:w-1/2 md:w-1/3 lg:w-1/4 flex flex-col"
-            >
-                <h1 className="text-3xl font-bold mb-4">Sign Up</h1>
+        <div className="container mx-auto max-w-md">
+            <h1 className="text-3xl font-bold text-gray-800 mb-6">Sign In</h1>
+            <form className="mt-4" onSubmit={handleSubmit}>
                 <div className="mb-4">
                     <label
                         className="block text-gray-700 text-sm font-bold mb-2"
@@ -58,31 +46,17 @@ export default function SignUpForm() {
                         Username
                     </label>
                     <input
-                        className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                        className="border border-gray-400 rounded-lg py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline w-full"
                         type="text"
                         name="username"
                         placeholder="Username"
+                        required
                         value={username}
-                        onChange={data}
-                        required={true}
-                    />
-                    <label
-                        className="block text-gray-700 text-sm font-bold mb-2"
-                        htmlFor="email"
-                    >
-                        Email
-                    </label>
-                    <input
-                        className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                        id="email"
-                        type="email"
-                        name="email"
-                        placeholder="Email"
-                        value={email}
-                        onChange={data}
+                        onChange={(e) => setUsername(e.target.value)}
                     />
                 </div>
-                <div className="mb-4">
+
+                <div className="mb-6">
                     <label
                         className="block text-gray-700 text-sm font-bold mb-2"
                         htmlFor="password"
@@ -90,46 +64,23 @@ export default function SignUpForm() {
                         Password
                     </label>
                     <input
-                        className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                        id="password"
+                        className="border border-gray-400 rounded-lg py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline w-full"
                         type="password"
                         name="password"
-                        placeholder="******************"
+                        placeholder="Password"
+                        required
                         value={password}
-                        onChange={data}
-                        required={true}
-                    />
-                    <label
-                        className="block text-gray-700 text-sm font-bold mb-2"
-                        htmlFor="confirmPassword"
-                    >
-                        Confirm Password
-                    </label>
-                    <input
-                        className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                        id="confirmPassword"
-                        type="password"
-                        name="confirmPassword"
-                        placeholder="******************"
-                        value={confirmPassword}
-                        onChange={data}
-                        required={true}
+                        onChange={(e) => setPassword(e.target.value)}
                     />
                 </div>
-                <div className="flex items-center justify-between">
-                    <button
-                        className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-                        type="submit"
-                    >
-                        Sign Up
-                    </button>
-                    <Link
-                        className="inline-block align-baseline font-bold text-sm text-blue-500 hover:text-blue-800"
-                        href="/auth/signin"
-                    >
-                        Already have an account?
-                    </Link>
-                </div>
+
+                <button
+                    className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded disabled:opacity-50"
+                    type="submit"
+                    disabled={isLoading}
+                >
+                    {isLoading ? "Signing In..." : "Sign In"}
+                </button>
             </form>
             <ToastContainer autoClose={3000} hideProgressBar />
         </div>
