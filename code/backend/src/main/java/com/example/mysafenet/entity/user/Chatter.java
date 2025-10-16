@@ -1,15 +1,16 @@
 package com.example.mysafenet.entity.user;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.DiscriminatorValue;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 @Entity
-
-@Table(name = "chatter")
+@Table(name = "chatters")
 @DiscriminatorValue("CHATTER")
-public class Chatter extends User{
+@Data
+@EqualsAndHashCode(callSuper = true)
+public class Chatter extends User {
+
     @Column(name = "chatter_role")
     private String chatterRole;
 }

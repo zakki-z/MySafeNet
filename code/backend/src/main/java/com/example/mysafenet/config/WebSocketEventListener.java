@@ -19,7 +19,6 @@ import java.time.LocalDateTime;
 @Slf4j
 public class WebSocketEventListener {
     private final ChatterRepository ChatterRepository;
-    private final MessagesRepository messagesRepository;
 
     @EventListener
     public void handelWebSocketConnectListener(SessionConnectedEvent event) {
