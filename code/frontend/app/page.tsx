@@ -1,7 +1,6 @@
-import SignUpPage from "@/app/auth/signup/page";
 
 export default function Home() {
   return (
-      <SignUpPage></SignUpPage>
+      <h1>Welcome to my safe net</h1>
   );
 }
