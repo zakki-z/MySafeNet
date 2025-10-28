@@ -11,23 +11,23 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
     @Autowired
     public UserService userService;
-    @GetMapping("getAllUsers")
+    @GetMapping()
     public String getAllUsers() {
         return userService.getAllUsers().toString();
     }
-    @GetMapping("getUserById/{id}")
+    @GetMapping("/{id}")
     public User getUserById(Long id) {
         return userService.getUserById(id);
     }
-    @PostMapping("addNewUser")
+    @PostMapping()
     public User addNewUser(User user) {
         return userService.addNewUser(user);
     }
-    @PutMapping("updateUser/{id}")
+    @PutMapping("/{id}")
     public User updateUser(@PathVariable Long id, User updatedUser) {
         return userService.updateUser(id, updatedUser);
     }
-    @DeleteMapping("deleteUser/{id}")
+    @DeleteMapping("/{id}")
     public void deleteUser(Long id) {
         userService.deleteUser(id);
     }

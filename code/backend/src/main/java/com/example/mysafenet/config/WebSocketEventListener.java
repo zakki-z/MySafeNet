@@ -4,6 +4,7 @@ import com.example.mysafenet.entity.Messages;
 import com.example.mysafenet.entity.enums.MessageType;
 import com.example.mysafenet.entity.user.Chatter;
 import com.example.mysafenet.repository.ChatterRepository;
+import com.example.mysafenet.repository.MessagesRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,6 +20,7 @@ import java.time.LocalDateTime;
 @Slf4j
 public class WebSocketEventListener {
     private final ChatterRepository ChatterRepository;
+    private final MessagesRepository messagesRepository;
 
     @EventListener
     public void handelWebSocketConnectListener(SessionConnectedEvent event) {
@@ -35,7 +37,7 @@ public class WebSocketEventListener {
                     .sentAt(LocalDateTime.now())
                     .build();
             // TODO Save messages
-           //messagesRepository.save(chatMessage);
+           messagesRepository.save(chatMessage);
         }
     }
 }
